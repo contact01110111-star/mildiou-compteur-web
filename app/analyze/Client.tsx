@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { API_BASE, postForm } from '@/lib/api';
+import { API_BASE, postForm, downscaleImage } from '@/lib/api';
 import StepViewer from '@/components/StepViewer';
 import SliderThreshold from '@/components/SliderThreshold';
 
@@ -20,7 +20,8 @@ export default function Client(){
     setStatus('Analyse en cours...');
     try{
       const fd = new FormData();
-      fd.append('file', f);
+      const small = await downscaleImage(f, 1600);
+      fd.append('file', small);
       fd.append('default_threshold', '0.5');
       let data;
       try{
