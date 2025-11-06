@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { API_BASE, postForm, downscaleImage } from '@/lib/api';
 import StepViewer from '@/components/StepViewer';
 import SliderThreshold from '@/components/SliderThreshold';
+import ProgressBar from '@/components/ProgressBar';
 
 export default function Client(){
   const [file, setFile] = useState<File | null>(null);
@@ -13,30 +14,47 @@ export default function Client(){
   const [status, setStatus] = useState<string>('Prêt');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [progress, setProgress] = useState<number>(0);
 
   async function runAnalyze(f: File){
     setIsLoading(true);
     setErrorMsg('');
     setStatus('Analyse en cours...');
+    setProgress(10); // démarrage
+
     try{
       const fd = new FormData();
+
+      // downscale côté client -> plus rapide à envoyer et à traiter
       const small = await downscaleImage(f, 1600);
+      setProgress(20);
+
       fd.append('file', small);
       fd.append('default_threshold', '0.5');
+
+      // envoi (on simule l’avancée jusqu’à ~70% pendant l’attente réseau)
+      setProgress(35);
+
       let data;
       try{
         data = await postForm(`${API_BASE}/+api/analyze`, fd);
       }catch{
         data = await postForm(`${API_BASE}/analyze`, fd);
       }
+      setProgress(85); // réponse reçue
+
+      // maj UI
       setSteps(data);
       setPercent(data.percent);
       setProbPack({prob: data.prob_b64, shape: [data.prob_shape[0], data.prob_shape[1]]});
       setRgbB64(data.masked);
+
       setStatus('Analyse terminée ✔️');
+      setProgress(100);
     }catch(e:any){
       setErrorMsg(e?.message || 'Erreur pendant l’analyse');
       setStatus('Erreur');
+      setProgress(0);
     }finally{
       setIsLoading(false);
     }
@@ -58,7 +76,7 @@ export default function Client(){
   function resetAll(){
     setFile(null); setSteps(null); setRgbB64('');
     setProbPack(null); setPercent(null); setErrorMsg('');
-    setStatus('Prêt');
+    setStatus('Prêt'); setProgress(0);
   }
 
   return (
@@ -76,6 +94,7 @@ export default function Client(){
               const f = e.target.files?.[0] || null;
               setFile(f);
               setStatus(f ? 'Fichier prêt' : 'Prêt');
+              setProgress(f ? 5 : 0); // petit feedback immédiat
             }}
           />
           <button className="btn" disabled={!file || isLoading} onClick={()=>file && runAnalyze(file)}>
@@ -83,6 +102,11 @@ export default function Client(){
           </button>
           <button className="btn" style={{background:'#475569'}} onClick={resetAll}>Réinitialiser</button>
           <span style={{color:'#94a3b8'}}>{status}</span>
+        </div>
+
+        {/* Barre de progression */}
+        <div style={{marginTop:12}}>
+          <ProgressBar value={progress}/>
         </div>
 
         {errorMsg && <div style={{marginTop:8, color:'#fecaca'}}>⚠️ {errorMsg}</div>}
