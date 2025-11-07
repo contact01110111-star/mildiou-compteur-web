@@ -16,3 +16,17 @@ export default function StepViewer({steps}:{steps:any}){
     </div>
   );
 }
+// … dans le rendu, près des autres étapes :
+{steps?.veins_mask && (
+  <div className="card">
+    <h3>Masque des nervures</h3>
+    <img src={`data:image/png;base64,${steps.veins_mask}`} alt="Veins mask"/>
+  </div>
+)}
+{steps?.veins_removed && (
+  <div className="card">
+    <h3>Feuille sans nervures (zone analysable)</h3>
+    <img src={`data:image/png;base64,${steps.veins_removed}`} alt="Vein-removed"/>
+  </div>
+)}
+
