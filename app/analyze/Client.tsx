@@ -37,7 +37,7 @@ export default function Client(){
   // --- UI / analyse ---
   const [file, setFile] = useState<File | null>(null);
   const [steps, setSteps] = useState<any>(null);
-  const [rgbB64, setRgbB64] = useState<string>('');
+  const [rgbB64, setRgbB64] = useState<string>(''); // image affichée pour l’annotation (ici: masked)
   const [probPack, setProbPack] = useState<{prob:string, shape:[number,number]}|null>(null);
   const [percent, setPercent] = useState<number|null>(null);
   const [status, setStatus] = useState<string>('Prêt');
@@ -59,10 +59,11 @@ export default function Client(){
   function openItem(id:string){
     const it = items.find(x=>x.id===id);
     if(!it) return;
-    // recharge dans le viewer
+    // recharge dans le viewer (NB: pour les éléments sauvegardés,
+    // on n’a plus prob/shape → le slider ne sera pas affiché, c’est normal)
     setSteps({ ...it.images, percent: it.percent, default_threshold: it.threshold });
     setProbPack(null);
-    setRgbB64(it.images.masked || '');
+    setRgbB64(it.images.masked || ''); // pour l’annotation éventuelle
     setPercent(it.percent);
     setStatus(`Ouvert: ${it.name}`);
   }
@@ -115,9 +116,9 @@ export default function Client(){
       setSteps(data);
       setPercent(data.percent);
       setProbPack({prob: data.prob_b64, shape: [data.prob_shape[0], data.prob_shape[1]]});
-      setRgbB64(data.masked);
+      setRgbB64(data.masked); // on annote sur 'masked'
 
-      // --- Enregistrement automatique ---
+      // --- Enregistrement automatique (quota-safe) ---
       const id = uid();
       const name = nextName(userId);
       const thumb = data.annotated ? await base64ToThumbnail(data.annotated, 120) : '';
@@ -125,21 +126,25 @@ export default function Client(){
         id, name, createdAt: new Date().toISOString(),
         threshold: data.default_threshold ?? 0.5, percent: data.percent ?? 0,
         images: {
-          masked: data.masked, thr_mask: data.thr_mask, heatmap: data.heatmap,
-          annotated: data.annotated, leaf_mask: data.leaf_mask, veins_removed: data.veins_removed
+          masked: data.masked,
+          thr_mask: data.thr_mask,
+          heatmap: data.heatmap,
+          annotated: data.annotated,
+          leaf_mask: data.leaf_mask,
+          veins_removed: data.veins_removed
         },
-        originalFileName: f.name, thumbnail: thumb
+        originalFileName: f.name,
+        thumbnail: thumb
       };
-     const res = safeUpsertAnalysis(userId, rec);
-setItems(listAnalyses(userId));
-if (!res.ok) {
-  setStatus("Sauvegarde limitée : quota dépassé (essayez de supprimer des anciennes feuilles).");
-} else if (res.trimmed) {
-  setStatus("Sauvegarde OK. Anciennes feuilles purgées pour respecter le quota.");
-} else if (res.compacted) {
-  setStatus("Sauvegarde OK (compactée).");
-}
-
+      const res = safeUpsertAnalysis(userId, rec);
+      setItems(listAnalyses(userId));
+      if (!res.ok) {
+        setStatus("Sauvegarde limitée : quota dépassé (essayez de supprimer des anciennes feuilles).");
+      } else if (res.trimmed) {
+        setStatus("Sauvegarde OK. Anciennes feuilles purgées pour respecter le quota.");
+      } else if (res.compacted) {
+        setStatus("Sauvegarde OK (compactée).");
+      }
 
       setStatus('Analyse terminée ✔️');
       setProgress(100);
@@ -175,7 +180,7 @@ if (!res.ok) {
     <div className="container" style={{flex:1}}>
       <div className="card" style={{marginBottom:16}}>
         <h1 style={{marginTop:0}}>Compteur de mildiou</h1>
-        <p>1) Choisis une photo de feuille. 2) Clique <em>Analyser</em>. 3) Ajuste le seuil et télécharge la heatmap annotée.</p>
+        <p>1 Choisis une photo de feuille. 2 Clique <em>Analyser</em>. 3 Ajuste le seuil et télécharge la heatmap annotée.</p>
 
         <div style={{display:'flex', gap:12, alignItems:'center', flexWrap:'wrap'}}>
           <input
@@ -211,6 +216,7 @@ if (!res.ok) {
               prob={probPack.prob}
               shape={probPack.shape}
               rgbB64={rgbB64}
+              leafMaskB64={steps.leaf_mask}   
               init={steps.default_threshold}
               onUpdate={onThresholdUpdate}
             />
