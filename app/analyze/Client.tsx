@@ -106,11 +106,12 @@ export default function Client(){
       setProgress(35);
 
       let data;
-      try{
-        data = await postForm(`${API_BASE}/+api/analyze`, fd);
-      }catch{
-        data = await postForm(`${API_BASE}/analyze`, fd);
-      }
+try {
+  data = await postForm(`${API_BASE}/analyze`, fd);       // ✅ Hugging Face
+} catch {
+  data = await postForm(`${API_BASE}/+api/analyze`, fd);  // fallback si proxy Vercel
+}
+
       setProgress(85);
 
       setSteps(data);

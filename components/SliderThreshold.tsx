@@ -33,11 +33,11 @@ export default function SliderThreshold({ prob, shape, rgbB64, leafMaskB64, init
 
         // priorité au chemin proxy Vercel +api/, fallback direct
         let data;
-        try{
-          data = await postForm(`${API_BASE}/+api/recalc`, fd);
-        }catch{
-          data = await postForm(`${API_BASE}/recalc`, fd);
-        }
+try {
+  data = await postForm(`${API_BASE}/recalc`, fd);
+} catch {
+  data = await postForm(`${API_BASE}/+api/recalc`, fd);
+}
         onUpdate(data);
       }catch(e){
         // en cas d'erreur réseau, on n'écrase rien dans l'UI
