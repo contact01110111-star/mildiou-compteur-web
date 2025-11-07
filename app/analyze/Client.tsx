@@ -6,7 +6,7 @@ import SliderThreshold from '@/components/SliderThreshold';
 import ProgressBar from '@/components/ProgressBar';
 import AuthModal from '@/components/AuthModal';
 import Sidebar from '@/components/Sidebar';
-import { Analysis, getSavedUser, setSavedUser, getUserIdOrGuest, listAnalyses, upsertAnalysis, deleteAnalyses, nextName, uid } from '@/lib/storage';
+import { Analysis, getSavedUser, setSavedUser, getUserIdOrGuest, listAnalyses, safeUpsertAnalysis, deleteAnalyses, nextName, uid } from '@/lib/storage';
 import { zipAnalyses } from '@/lib/zip';
 
 export default function Client(){
@@ -130,7 +130,7 @@ export default function Client(){
         },
         originalFileName: f.name, thumbnail: thumb
       };
-      const res = safeUpsertAnalysis(userId, rec);
+     const res = safeUpsertAnalysis(userId, rec);
 setItems(listAnalyses(userId));
 if (!res.ok) {
   setStatus("Sauvegarde limitée : quota dépassé (essayez de supprimer des anciennes feuilles).");
