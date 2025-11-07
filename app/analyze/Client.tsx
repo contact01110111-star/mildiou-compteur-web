@@ -130,8 +130,16 @@ export default function Client(){
         },
         originalFileName: f.name, thumbnail: thumb
       };
-      upsertAnalysis(userId, rec);
-      setItems(listAnalyses(userId));
+      const res = safeUpsertAnalysis(userId, rec);
+setItems(listAnalyses(userId));
+if (!res.ok) {
+  setStatus("Sauvegarde limitée : quota dépassé (essayez de supprimer des anciennes feuilles).");
+} else if (res.trimmed) {
+  setStatus("Sauvegarde OK. Anciennes feuilles purgées pour respecter le quota.");
+} else if (res.compacted) {
+  setStatus("Sauvegarde OK (compactée).");
+}
+
 
       setStatus('Analyse terminée ✔️');
       setProgress(100);
