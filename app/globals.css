@@ -1,11 +1,27 @@
-:root { --bg:#0b1320; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; }
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui}
-.container{max-width:980px;margin:40px auto;padding:0 16px}
-.card{background:var(--card);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
-.row{display:flex;gap:16px;flex-wrap:wrap}
+:root { --bg:#0b1320; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; --accent:#22c55e; --border:#223047; }
+*{box-sizing:border-box} 
+body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui}
+.container{max-width:1100px;margin:24px auto;padding:0 16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.15)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
 .btn{background:#2563eb;color:white;border:none;padding:10px 14px;border-radius:12px;cursor:pointer}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-ghost{background:#334155}
+.btn-accent{background:var(--accent);color:#083a1b;font-weight:700}
 .input{padding:10px;border-radius:12px;border:1px solid #334155;background:#0f172a;color:var(--text)}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 img{max-width:100%;height:auto;border-radius:12px}
 label{color:var(--muted);font-size:.9rem}
 .slider{width:100%}
+/* layout avec sidebar */
+.appwrap{display:flex;min-height:100vh}
+.sidebar{width:300px;min-width:300px;background:#0e1626;border-right:1px solid var(--border);padding:16px 12px;position:sticky;top:0;height:100vh;overflow:auto}
+.sidebar h2{margin:0 0 12px 8px;font-size:1.1rem;color:#b7c3d9}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;gap:10px;align-items:center;background:#0b1320;border:1px solid var(--border);border-radius:12px;padding:8px}
+.thumb{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--border)}
+.name{font-weight:600}
+.meta{font-size:.85rem;color:#9fb0c9}
+.topbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.chip{font-size:.85rem;color:#082a18;background:#1ddb7a22;padding:4px 8px;border-radius:999px;border:1px solid #1ddb7a55}
+.footer{background:var(--accent);color:#083a1b;text-align:center;padding:10px 0;font-weight:700;letter-spacing:.5px}
