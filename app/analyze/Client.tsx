@@ -105,12 +105,15 @@ export default function Client(){
       fd.append('default_threshold', '0.5');
       setProgress(35);
 
-      let data;
-try {
-  data = await postForm(`${API_BASE}/analyze`, fd);       // ✅ Hugging Face
-} catch {
-  data = await postForm(`${API_BASE}/+api/analyze`, fd);  // fallback si proxy Vercel
-}
+     // analyze
+let data;
+try { data = await postForm(`${API_BASE}/analyze`, fd); }
+catch { data = await postForm(`${API_BASE}/+api/analyze`, fd); }
+
+// recalc
+try { data = await postForm(`${API_BASE}/recalc`, fd); }
+catch { data = await postForm(`${API_BASE}/+api/recalc`, fd); }
+
 
       setProgress(85);
 
